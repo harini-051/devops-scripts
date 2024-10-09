@@ -7,19 +7,19 @@
 ############################################################################################
 
 #Debug Mode
-set -x
+#set -x
 
 #Default Enviroment
-ENV = "staging"
+ENV="staging"
 
 #Action to take(build,deploy,monitor,logs,ec2-start,ec2-stop,ec2-status)
-ACTION = ""
+ACTION=""
 
 #Service to manage
-SERVICWE = ""
+SERVICWE=""
 
 #EC2 instance ID
-INSTANCE_ID = ""
+INSTANCE_ID=""
 
 #Help function to how to use
 function show_help {
@@ -37,55 +37,55 @@ function show_help {
 }
 
 #Parse command line options
-while [[$# -gt 0]];do
+while [[ $# -gt 0 ]];do
 	case $1 in
 		-b|--build)
-			ACTION = "build"
+			ACTION="build"
 			shift
 			;;
 		-d|--deploy)
-			ACTION = "deploy"
+			ACTION="deploy"
 			shift
 			;;
 		-m|--monitor)
-			ACTION = "monitor"
+			ACTION="monitor"
 			shift
 			;;
 		-l|--logs)
-			ACTION = "logs"
+			ACTION="logs"
 			shift
 			;;
 		-s|--ec2-start)
-			ACTION = "ec2-start"
+			ACTION="ec2-start"
 			shift
 			;;
 		-t|--ec2-stop)
-			ACTION = "ec2-stop"
+			ACTION="ec2-stop"
 			shift
 			;;
 		-x|--ec2-status)
-			ACTION = "ec2-status"
+			ACTION="ec2-status"
 			shift
 			;;
 		-i|INSTANCE_ID)
-			ISTANCE_ID = "$2"
+			ISTANCE_ID="$2"
 			shift 2
 			;;
 		-h|--help)
 			show_help
-			Exit 0 
+			exit 0 
 			;;
-		)*
-		SERVICE = "$1"
-		shift
-		;;
+		*)
+			SERVICE="$1"
+			shift
+			;;
 	esac
 done
 
-if[[-z "$SERVICE" && -z "$INSTANCE_ID" ]]
+if [[ -z "$SERVICE" && -z "$INSTANCE_ID" ]];then
 	echo "Error: No service or instance Id specified"
 	show_help
-	exit
+	exit 1
 fi
 
 #Perform the requested Action
@@ -108,14 +108,15 @@ case "$ACTION" in
 		docker logs "$SERVICE-$ENV"
 		;;
 	ec2-start)
-		if[[-z "$INSTANCE_ID"]];then
+		if [[-z "$INSTANCE_ID"]];then
 			echo "Error: EC2 instance id is required"
 			exit 0
 		fi
 		echo "Starting the ec2 instance $INSTANCE_ID..."
 		aws ec2 start-instances --instance-ids i-"$INSTANCE_ID"
+		;;
 	ec2-stop)
-		if[[-z $INSTANCE_ID]];then
+		if [[ -z $INSTANCE_ID ]];then
 			echo "Error: EC2 instance id is required"
 			exit 0
 		fi
@@ -123,7 +124,7 @@ case "$ACTION" in
 		aws ec2 stop-instances --instance-ids i-"$INSTANCE_ID"
 		;;
 	ec2-status)
-		if[[-z $INSTANCE_ID]];then
+		if [[ -z $INSTANCE_ID ]];then
 			echo "Error: EC2 instance id is required"
 			exit 0
 		fi
