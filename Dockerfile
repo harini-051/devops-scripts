@@ -1,17 +1,23 @@
-FROM UBUNTU:latest
+FROM ubuntu:latest
 
-RUN apt-get update && apt-get install -y\
-docker.io\
-awscli\
-rm -rf /var/lib/lists/*
+# Install dependencies and Docker
+RUN apt-get update && \
+    apt-get install -y docker.io curl unzip && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR app
+# Install AWS CLI using the official installation script
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws
+
+WORKDIR /app
 
 COPY deployer.sh /app/deployer.sh
 
-chmod +x deployer.sh
+ENV ENV=staging
 
-ENV = "staging"
+RUN chmod +x /app/deployer.sh
 
-CMD["./deployer.sh","-h"]
+CMD ["bash","-c","/app/deployer.sh -h"]
 

@@ -21,6 +21,8 @@ SERVICWE=""
 #EC2 instance ID
 INSTANCE_ID=""
 
+set -x #debug mode
+
 #Help function to how to use
 function show_help {
     echo "Usage: ./deployer.sh [options] <service>"
