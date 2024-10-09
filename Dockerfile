@@ -19,5 +19,5 @@ ENV ENV=staging
 
 RUN chmod +x /app/deployer.sh
 
-CMD ["bash","-c","/app/deployer.sh -h"]
+CMD ["/app/deployer.sh", "-b", "my-image"]
 
