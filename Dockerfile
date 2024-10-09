@@ -19,5 +19,6 @@ ENV ENV=staging
 
 RUN chmod +x /app/deployer.sh
 
-CMD ["/app/deployer.sh", "-b", "my-image"]
+ENTRYPOINT ["/app/deployer.sh"]
+CMD ["-h"]
 
