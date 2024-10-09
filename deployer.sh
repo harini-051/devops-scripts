@@ -16,10 +16,13 @@ ENV="staging"
 ACTION=""
 
 #Service to manage
-SERVICWE=""
+SERVICE=""
 
 #EC2 instance ID
 INSTANCE_ID=""
+
+echo "Action: $ACTION"
+echo "Service: $SERVICE"
 
 set -x #debug mode
 
@@ -39,109 +42,66 @@ function show_help {
 }
 
 #Parse command line options
-while [[ $# -gt 0 ]];do
-	case $1 in
-		-b|--build)
-			ACTION="build"
-			shift
-			;;
-		-d|--deploy)
-			ACTION="deploy"
-			shift
-			;;
-		-m|--monitor)
-			ACTION="monitor"
-			shift
-			;;
-		-l|--logs)
-			ACTION="logs"
-			shift
-			;;
-		-s|--ec2-start)
-			ACTION="ec2-start"
-			shift
-			;;
-		-t|--ec2-stop)
-			ACTION="ec2-stop"
-			shift
-			;;
-		-x|--ec2-status)
-			ACTION="ec2-status"
-			shift
-			;;
-		-i|INSTANCE_ID)
-			ISTANCE_ID="$2"
-			shift 2
-			;;
-		-h|--help)
-			show_help
-			exit 0 
-			;;
-		*)
-			SERVICE="$1"
-			shift
-			;;
-	esac
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -b|--build)
+            ACTION="build"
+            shift
+            ;;
+        -d|--deploy)
+            ACTION="deploy"
+            shift
+            ;;
+        -m|--monitor)
+            ACTION="monitor"
+            shift
+            ;;
+        -l|--logs)
+            ACTION="logs"
+            shift
+            ;;
+        -s|--ec2-start)
+            ACTION="ec2-start"
+            shift
+            ;;
+        -t|--ec2-stop)
+            ACTION="ec2-stop"
+            shift
+            ;;
+        -x|--ec2-status)
+            ACTION="ec2-status"
+            shift
+            ;;
+        -i|--instance-id)
+            INSTANCE_ID="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            SERVICE="$1"
+            shift
+            ;;
+    esac
 done
 
-if [[ -z "$SERVICE" && -z "$INSTANCE_ID" ]];then
-	echo "Error: No service or instance Id specified"
-	show_help
-	exit 1
+# Check if an action was specified
+if [[ -z "$ACTION" ]]; then
+    echo "No action specified."
+    show_help
+    exit 1
 fi
 
-#Perform the requested Action
-case "$ACTION" in
-	build)
-		echo "Building and deploying $SERVICE in $ENV enviroment..."
-		docker build -t "$SERVICE:$ENV" . #Build the docker image
-		docker run -d --name "$SERVICE-$ENV" "$SERVICE:$ENV" #Deploy and run the container
-		;;
-	deploy)
-		echo "Deploying $SERVICE in $ENV environement..."
-		docker run -d --name "$SERVICE-$ENV" "$SERVICE:$ENV" 
-		;;
-	monitor)
-		echo "Monitor $SERVICE-$ENV container..."
-		docker stats "$SERVICE-$ENV"
-		;;
-	logs)
-		echo "Logs of $SERVICE-$ENV container... "
-		docker logs "$SERVICE-$ENV"
-		;;
-	ec2-start)
-		if [[-z "$INSTANCE_ID"]];then
-			echo "Error: EC2 instance id is required"
-			exit 0
-		fi
-		echo "Starting the ec2 instance $INSTANCE_ID..."
-		aws ec2 start-instances --instance-ids i-"$INSTANCE_ID"
-		;;
-	ec2-stop)
-		if [[ -z $INSTANCE_ID ]];then
-			echo "Error: EC2 instance id is required"
-			exit 0
-		fi
-		echo "Stopping the ec2 instance $INSTANCE_ID..."
-		aws ec2 stop-instances --instance-ids i-"$INSTANCE_ID"
-		;;
-	ec2-status)
-		if [[ -z $INSTANCE_ID ]];then
-			echo "Error: EC2 instance id is required"
-			exit 0
-		fi
-		echo "Checking status of ec2 instance $INSTANCE_ID..."
-		aws ec2 describe-instance-status --instance-ids i-"$INSTANCE_ID"
-		;;
-	*)
-		echo "INVALID ACTION"
-		show_help
-		;;
-esac
-		
-			
+# Check if a service was specified
+if [[ -z "$SERVICE" ]]; then
+    echo "No service specified."
+    show_help
+    exit 1
+fi
 
+echo "Action: $ACTION"
+echo "Service: $SERVICE"
 
-
-
-
+# Add your actions here
